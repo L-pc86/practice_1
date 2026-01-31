@@ -54,7 +54,7 @@ public class UserController {
     }
 
 
-    //分页带条件查询
+    //分页带age查询
     @GetMapping("/pageByAge")
     public IPage<User> pageByAge(@RequestParam Integer pageNum, @RequestParam Integer pageSize, @RequestParam Integer age) {
         Page<User> page = new Page<>(pageNum, pageSize);
@@ -62,4 +62,18 @@ public class UserController {
         wrapper.ge(User::getAge, age);
         return userService.page(page, wrapper);
     }
+
+    //分页带name查询
+    @GetMapping("/pageByName")
+    public IPage<User> pageByName(@RequestParam Integer pageNum, @RequestParam Integer pageSize, @RequestParam String name) {
+        Page<User> page = new Page<>(pageNum, pageSize);
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.like(User::getName, name);
+        return userService.page(page, wrapper);
+    }
+
+
+
 }
+
+
