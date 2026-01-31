@@ -3,6 +3,8 @@ package org.example.test1.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.example.test1.entity.User;
 import org.example.test1.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,5 +43,23 @@ public class UserController {
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.ge(User::getAge, age);
         return userService.list(wrapper);
+    }
+
+
+    //分页查询
+    @GetMapping("/page")
+    public IPage<User> page(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
+        Page<User> page = new Page<>(pageNum, pageSize);
+        return userService.page(page);
+    }
+
+
+    //分页带条件查询
+    @GetMapping("/pageByAge")
+    public IPage<User> pageByAge(@RequestParam Integer pageNum, @RequestParam Integer pageSize, @RequestParam Integer age) {
+        Page<User> page = new Page<>(pageNum, pageSize);
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.ge(User::getAge, age);
+        return userService.page(page, wrapper);
     }
 }
