@@ -1,10 +1,7 @@
 package org.example.test1.entity;
 
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 @Data
@@ -22,4 +19,8 @@ public class User {
 
     @TableField(value = "email")
     private String email;
+
+    @TableLogic
+    @TableField(value = "deleted")
+    private Integer deleted;
 }
