@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.example.test1.common.Result;
 import org.example.test1.entity.User;
 import org.example.test1.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +25,8 @@ public class UserController {
 
     //查询用户列表
     @GetMapping("/list")
-    public List<User> list() {
-        return userService.list();
+    public Result<List<User>> list() {
+        return Result.success(userService.list());
     }
 
 
@@ -77,6 +78,27 @@ public class UserController {
     @GetMapping("/delete")
     public boolean delete(@RequestParam Integer id) {
         return userService.removeById(id);
+    }
+
+
+    //新增user
+    @GetMapping("/add")
+    public boolean add() {
+        User user = new User();
+        user.setName("auto_time_test");
+        user.setAge(20);
+        user.setEmail("test@qq.com");
+
+        return userService.save(user);
+    }
+
+    //修改接口
+    @GetMapping("/update")
+    public boolean update(@RequestParam Integer id) {
+        User user = new User();
+        user.setId(id);
+        user.setAge(99);
+        return userService.updateById(user);
     }
 
 
