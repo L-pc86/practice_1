@@ -73,6 +73,12 @@ public class UserController {
     }
 
 
+    //删除用户
+    @GetMapping("/delete")
+    public boolean delete(@RequestParam Integer id) {
+        return userService.removeById(id);
+    }
+
 
 }
 
