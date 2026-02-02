@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.example.test1.common.Result;
 import org.example.test1.entity.User;
 import org.example.test1.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +25,8 @@ public class UserController {
 
     //查询用户列表
     @GetMapping("/list")
-    public List<User> list() {
-        return userService.list();
+    public Result<List<User>> list() {
+        return Result.success(userService.list());
     }
 
 
