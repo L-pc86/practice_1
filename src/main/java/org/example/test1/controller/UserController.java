@@ -30,55 +30,52 @@ public class UserController {
     }
 
 
-    //带条件查询接口
     @GetMapping("/listByAge")
-    public List<User> listByAge(@RequestParam Integer age) {
+    public Result<List<User>> listByAge(@RequestParam Integer age) {
+        System.out.println("==== hit Result listByAge ====");
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("age", age);
-        return userService.list(wrapper);
+        return Result.success(userService.list(wrapper));
     }
+
 
     //进阶带条件查询接口LmbdaQueryWrapper
     @GetMapping("/listByAge1")
-    public List<User> listByAge1(@RequestParam Integer age) {
+    public Result<List<User>> listByAge1(@RequestParam Integer age) {
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.ge(User::getAge, age);
-        return userService.list(wrapper);
+        wrapper.ge(User::getAge,age);
+        return Result.success(userService.list(wrapper));
     }
 
 
     //分页查询
     @GetMapping("/page")
-    public IPage<User> page(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
+    public Result<IPage<User>> page(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
         Page<User> page = new Page<>(pageNum, pageSize);
-        return userService.page(page);
+        return Result.success(userService.page(page));
     }
-
 
     //分页带age查询
     @GetMapping("/pageByAge")
-    public IPage<User> pageByAge(@RequestParam Integer pageNum, @RequestParam Integer pageSize, @RequestParam Integer age) {
-        Page<User> page = new Page<>(pageNum, pageSize);
+    public Result<Page<User>> pageByAge(@RequestParam Integer pageNum, @RequestParam Integer pageSize, @RequestParam Integer age) {
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.ge(User::getAge, age);
-        return userService.page(page, wrapper);
+        Page<User> page = new Page<>(pageNum, pageSize);
+        wrapper.eq(User::getAge, age);
+        return Result.success(userService.page(page, wrapper));
     }
 
     //分页带name查询
     @GetMapping("/pageByName")
-    public IPage<User> pageByName(@RequestParam Integer pageNum, @RequestParam Integer pageSize, @RequestParam String name) {
-        Page<User> page = new Page<>(pageNum, pageSize);
+    public Result<Page<User>> pageByName(@RequestParam Integer pageNum, @RequestParam Integer pageSize, @RequestParam String name) {
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.like(User::getName, name);
-        return userService.page(page, wrapper);
+        Page<User> page = new Page<>(pageNum, pageSize);
+        wrapper.eq(User::getName, name);
+        return Result.success(userService.page(page, wrapper));
     }
 
 
     //删除用户
-    @GetMapping("/delete")
-    public boolean delete(@RequestParam Integer id) {
-        return userService.removeById(id);
-    }
+
 
 
     //新增user
