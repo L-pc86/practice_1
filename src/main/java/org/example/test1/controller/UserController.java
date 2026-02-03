@@ -75,28 +75,16 @@ public class UserController {
 
 
     //删除用户
-
-
-
-    //新增user
-    @GetMapping("/add")
-    public boolean add() {
-        User user = new User();
-        user.setName("auto_time_test");
-        user.setAge(20);
-        user.setEmail("test@qq.com");
-
-        return userService.save(user);
+    @GetMapping("/delete")
+    public Result<Boolean> delete(@RequestParam Integer id) {
+        boolean isDelete = userService.removeById(id);
+        return Result.success(isDelete);
     }
 
-    //修改接口
-    @GetMapping("/update")
-    public boolean update(@RequestParam Integer id) {
-        User user = new User();
-        user.setId(id);
-        user.setAge(99);
-        return userService.updateById(user);
-    }
+
+
+
+
 
 
 }
