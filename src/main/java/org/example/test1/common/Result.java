@@ -21,7 +21,7 @@ public class Result<T> {
         return result;
     }
 
-    public static <T> Result<T> fail(ResultCodeEnum codeEnum) {
+    public static <T> Result<T> error(ResultCodeEnum codeEnum) {
         Result<T> result = new Result<>();
         result.setCode(codeEnum.getCode());
         result.setMsg(codeEnum.getMsg());
@@ -29,7 +29,7 @@ public class Result<T> {
     }
 
     // 自定义失败
-    public static <T> Result<T> fail(Integer code, String msg) {
+    public static <T> Result<T> error(Integer code, String msg) {
         Result<T> result = new Result<>();
         result.setCode(code);
         result.setMsg(msg);
