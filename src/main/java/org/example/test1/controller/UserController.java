@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.example.test1.common.Result;
+import org.example.test1.common.ResultCodeEnum;
+import org.example.test1.common.exception.BusinessException;
 import org.example.test1.entity.User;
 import org.example.test1.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +34,16 @@ public class UserController {
 
     @GetMapping("/listByAge")
     public Result<List<User>> listByAge(@RequestParam Integer age) {
-        System.out.println("==== hit Result listByAge ====");
+        if (age == null || age < 0) {
+            throw new BusinessException(ResultCodeEnum.PARAM_ERROR);
+        }
+
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("age", age);
+
         return Result.success(userService.list(wrapper));
     }
+
 
 
     //进阶带条件查询接口LmbdaQueryWrapper

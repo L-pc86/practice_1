@@ -4,7 +4,8 @@ public enum ResultCodeEnum {
 
     SUCCESS(200, "success"),
     FAIL(500, "系统异常"),
-    PARAM_ERROR(400, "参数错误");
+    PARAM_ERROR(400, "参数错误"),
+    SYSTEM_ERROR(500, "系统错误");  // 添加这行
 
     private final Integer code;
     private final String msg;
@@ -22,3 +23,4 @@ public enum ResultCodeEnum {
         return msg;
     }
 }
+
