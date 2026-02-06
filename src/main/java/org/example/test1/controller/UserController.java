@@ -11,10 +11,7 @@ import org.example.test1.common.exception.BusinessException;
 import org.example.test1.entity.User;
 import org.example.test1.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -89,6 +86,12 @@ public class UserController {
     }
 
 
+    //创建用户
+    @PostMapping("/create")
+    public Result<Boolean> create(@RequestBody User user) {
+        boolean isSave = userService.save(user);
+        return Result.success(isSave);
+    }
 
 
 
