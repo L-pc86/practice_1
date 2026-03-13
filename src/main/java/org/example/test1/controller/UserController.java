@@ -79,7 +79,7 @@ public class UserController {
 
 
     //删除用户
-    @GetMapping("/delete")
+    @DeleteMapping("/delete")
     public Result<Boolean> delete(@RequestParam Integer id) {
         boolean isDelete = userService.removeById(id);
         return Result.success(isDelete);
