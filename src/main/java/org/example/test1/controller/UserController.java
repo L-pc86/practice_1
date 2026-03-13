@@ -93,8 +93,14 @@ public class UserController {
         return Result.success(isSave);
     }
 
+    //更新用户
+    @PutMapping("/update")
+    public Result<Boolean> update(@RequestBody User user) {
+        boolean isUpdate = userService.updateById(user);
+        return Result.success(isUpdate);
+    }
 
-
+    
 
 
 }
