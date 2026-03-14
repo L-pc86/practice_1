@@ -144,6 +144,104 @@ public class UserController {
         return Result.success(list);
     }
 
+    //根据name模糊查询
+    @GetMapping("/listByNameLike")
+    public Result<List<User>> listByNameLike(@RequestParam String name) {
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.like(User::getName, name);
+        return Result.success(userService.list(wrapper));
+    }
+
+    //多条件组合查询（name精确 + age范围）
+    @GetMapping("/search")
+    public Result<List<User>> search(@RequestParam(required = false) String name,
+                                      @RequestParam(required = false) Integer age,
+                                      @RequestParam(required = false) Integer minAge,
+                                      @RequestParam(required = false) Integer maxAge) {
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        if (name != null && !name.isEmpty()) {
+            wrapper.eq(User::getName, name);
+        }
+        if (age != null) {
+            wrapper.eq(User::getAge, age);
+        }
+        if (minAge != null) {
+            wrapper.ge(User::getAge, minAge);
+        }
+        if (maxAge != null) {
+            wrapper.le(User::getAge, maxAge);
+        }
+        return Result.success(userService.list(wrapper));
+    }
+
+    //分页 + 多条件组合查询
+    @GetMapping("/pageSearch")
+    public Result<Page<User>> pageSearch(@RequestParam Integer pageNum,
+                                          @RequestParam Integer pageSize,
+                                          @RequestParam(required = false) String name,
+                                          @RequestParam(required = false) Integer age) {
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        if (name != null && !name.isEmpty()) {
+            wrapper.like(User::getName, name);
+        }
+        if (age != null) {
+            wrapper.eq(User::getAge, age);
+        }
+        wrapper.orderByDesc(User::getCreateTime);
+        Page<User> page = new Page<>(pageNum, pageSize);
+        return Result.success(userService.page(page, wrapper));
+    }
+
+    //根据邮箱模糊查询
+    @GetMapping("/listByEmailLike")
+    public Result<List<User>> listByEmailLike(@RequestParam String email) {
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.like(User::getEmail, email);
+        return Result.success(userService.list(wrapper));
+    }
+
+    //根据name精确查询
+    @GetMapping("/listByName")
+    public Result<List<User>> listByName(@RequestParam String name) {
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getName, name);
+        return Result.success(userService.list(wrapper));
+    }
+
+    //根据name删除
+    @DeleteMapping("/deleteByName")
+    public Result<Boolean> deleteByName(@RequestParam String name) {
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getName, name);
+        boolean isDelete = userService.remove(wrapper);
+        return Result.success(isDelete);
+    }
+
+    //年龄范围查询
+    @GetMapping("/listByAgeRange")
+    public Result<List<User>> listByAgeRange(@RequestParam Integer minAge, @RequestParam Integer maxAge) {
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.between(User::getAge, minAge, maxAge);
+        return Result.success(userService.list(wrapper));
+    }
+
+    //批量新增用户
+    @PostMapping("/batchSave")
+    public Result<Boolean> batchSave(@RequestBody List<User> users) {
+        boolean isSave = userService.saveBatch(users);
+        return Result.success(isSave);
+    }
+
+    //根据ID更新name
+    @PutMapping("/updateName")
+    public Result<Boolean> updateName(@RequestParam Integer id, @RequestParam String name) {
+        User user = new User();
+        user.setId(id);
+        user.setName(name);
+        boolean isUpdate = userService.updateById(user);
+        return Result.success(isUpdate);
+    }
+
 
 }
 
