@@ -16,10 +16,11 @@ public class GlobalExceptionHandler {
         return Result.error(e.getCode(), e.getMsg());
     }
 
-    // 2️⃣ 参数校验异常（后面会用到）
+    // 2️⃣ 参数校验异常
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Result<?> handleValidException(MethodArgumentNotValidException e) {
-        return Result.error(ResultCodeEnum.PARAM_ERROR);
+        String message = e.getBindingResult().getFieldError().getDefaultMessage();
+        return Result.error(ResultCodeEnum.PARAM_ERROR.getCode(), message);
     }
 
     // 3️⃣ 兜底异常（非常重要）
