@@ -12,7 +12,7 @@ import org.example.test1.entity.User;
 import org.example.test1.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -88,7 +88,7 @@ public class UserController {
 
     //创建用户
     @PostMapping("/create")
-    public Result<Boolean> create(@RequestBody User user) {
+    public Result<Boolean> create(@Valid @RequestBody User user) {
         boolean isSave = userService.save(user);
         return Result.success(isSave);
     }
