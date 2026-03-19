@@ -13,9 +13,11 @@ import org.example.test1.common.exception.BusinessException;
 import org.example.test1.entity.User;
 import org.example.test1.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/user")
@@ -25,11 +27,25 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
+    private static final String USER_LIST_KEY = "user:list";
+
     //大大大大大大大大大大
-    @Operation(summary = "查询用户列表", description = "获取所有用户列表")
+    @Operation(summary = "查询用户列表", description = "获取所有用户列表（带Redis缓存）")
     @GetMapping("/list")
     public Result<List<User>> list() {
-        return Result.success(userService.list());
+        List<User> userList = (List<User>) redisTemplate.opsForValue().get(USER_LIST_KEY);
+        if (userList != null) {
+            System.out.println("从Redis缓存中获取数据");
+            return Result.success(userList);
+        }
+
+        System.out.println("从数据库中查询数据");
+        userList = userService.list();
+        redisTemplate.opsForValue().set(USER_LIST_KEY, userList, 30, TimeUnit.MINUTES);
+        return Result.success(userList);
     }
 
 
@@ -86,6 +102,9 @@ public class UserController {
     @DeleteMapping("/delete")
     public Result<Boolean> delete(@RequestParam Integer id) {
         boolean isDelete = userService.removeById(id);
+        if (isDelete) {
+            redisTemplate.delete(USER_LIST_KEY);
+        }
         return Result.success(isDelete);
     }
 
@@ -94,6 +113,9 @@ public class UserController {
     @PostMapping("/create")
     public Result<Boolean> create(@Valid @RequestBody User user) {
         boolean isSave = userService.save(user);
+        if (isSave) {
+            redisTemplate.delete(USER_LIST_KEY);
+        }
         return Result.success(isSave);
     }
 
@@ -101,6 +123,9 @@ public class UserController {
     @PutMapping("/update")
     public Result<Boolean> update(@RequestBody User user) {
         boolean isUpdate = userService.updateById(user);
+        if (isUpdate) {
+            redisTemplate.delete(USER_LIST_KEY);
+        }
         return Result.success(isUpdate);
     }
 
