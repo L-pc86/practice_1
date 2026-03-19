@@ -32,7 +32,10 @@ public class UserController {
 
     private static final String USER_LIST_KEY = "user:list";
 
-    //大大大大大大大大大大
+    /**
+     * 查询用户列表（带Redis缓存）
+     * @return 用户列表
+     * */ 
     @Operation(summary = "查询用户列表", description = "获取所有用户列表（带Redis缓存）")
     @GetMapping("/list")
     public Result<List<User>> list() {
