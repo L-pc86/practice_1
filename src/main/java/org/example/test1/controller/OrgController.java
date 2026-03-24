@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import org.example.test1.common.Result;
 import org.example.test1.entity.Org;
 import org.example.test1.service.OrgService;
-import org.springframework.data.redis.core.RedisTemplate;
-import java.util.concurrent.TimeUnit;
 import jakarta.validation.Valid;
 import java.util.List;
 
@@ -20,22 +18,10 @@ public class OrgController {
     @Autowired
     private OrgService orgService;
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
-
-    private static final String ORG_LIST_KEY = "org:list";
-
     @Operation(summary = "查询所有组织", description = "获取组织列表")
     @GetMapping("/list")
     public Result<List<Org>> list() {
-        List<Org> orgList = (List<Org>) redisTemplate.opsForValue().get(ORG_LIST_KEY);
-        if (orgList != null) {
-            System.out.println("从Redis缓存中获取组织数据");
-            return Result.success(orgList);
-        }
-        System.out.println("从数据库中查询组织数据");
-        orgList = orgService.list();
-        redisTemplate.opsForValue().set(ORG_LIST_KEY, orgList, 30, TimeUnit.MINUTES);
+        List<Org> orgList = orgService.list();
         return Result.success(orgList);
     }
 
@@ -50,9 +36,6 @@ public class OrgController {
     @PostMapping("/create")
     public Result<Boolean> create(@Valid @RequestBody Org org) {
         boolean isSave = orgService.save(org);
-        if (isSave) {
-            redisTemplate.delete(ORG_LIST_KEY);
-        }
         return Result.success(isSave);
     }
 
@@ -60,9 +43,6 @@ public class OrgController {
     @PutMapping("/update")
     public Result<Boolean> update(@RequestBody Org org) {
         boolean isUpdate = orgService.updateById(org);
-        if (isUpdate) {
-            redisTemplate.delete(ORG_LIST_KEY);
-        }
         return Result.success(isUpdate);
     }
 
@@ -70,9 +50,6 @@ public class OrgController {
     @DeleteMapping("/delete")
     public Result<Boolean> delete(@RequestParam Integer id) {
         boolean isDelete = orgService.removeById(id);
-        if (isDelete) {
-            redisTemplate.delete(ORG_LIST_KEY);
-        }
         return Result.success(isDelete);
     }
 }
