@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.example.test1.common.Result;
 import org.example.test1.entity.Org;
-import org.example.test1.service.OrgService;
+import org.example.test1.service.IOrgService;
 import jakarta.validation.Valid;
 import java.util.List;
 
@@ -16,12 +16,19 @@ import java.util.List;
 public class OrgController {
 
     @Autowired
-    private OrgService orgService;
+    private IOrgService orgService;
 
     @Operation(summary = "查询所有组织", description = "获取组织列表")
     @GetMapping("/list")
     public Result<List<Org>> list() {
-        List<Org> orgList = orgService.list();
+        List<Org> orgList = orgService.listAll();
+        return Result.success(orgList);
+    }
+
+    @Operation(summary = "根据父ID查询组织", description = "获取指定父组织的子组织列表")
+    @GetMapping("/listByParent")
+    public Result<List<Org>> listByParent(@RequestParam Integer parentId) {
+        List<Org> orgList = orgService.listByParentId(parentId);
         return Result.success(orgList);
     }
 
@@ -35,21 +42,21 @@ public class OrgController {
     @Operation(summary = "创建组织", description = "新增组织")
     @PostMapping("/create")
     public Result<Boolean> create(@Valid @RequestBody Org org) {
-        boolean isSave = orgService.save(org);
+        boolean isSave = orgService.create(org);
         return Result.success(isSave);
     }
 
     @Operation(summary = "更新组织", description = "修改组织信息")
     @PutMapping("/update")
     public Result<Boolean> update(@RequestBody Org org) {
-        boolean isUpdate = orgService.updateById(org);
+        boolean isUpdate = orgService.update(org);
         return Result.success(isUpdate);
     }
 
     @Operation(summary = "删除组织", description = "根据ID删除组织")
     @DeleteMapping("/delete")
     public Result<Boolean> delete(@RequestParam Integer id) {
-        boolean isDelete = orgService.removeById(id);
+        boolean isDelete = orgService.delete(id);
         return Result.success(isDelete);
     }
 }
