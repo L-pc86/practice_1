@@ -4,13 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.example.test1.common.Result;
 import org.example.test1.entity.Setmeal;
-import org.example.test1.entity.SetmealDish;
 import org.example.test1.service.ISetmealService;
-import org.example.test1.service.ISetmealDishService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -22,16 +19,11 @@ public class SetmealController {
     @Autowired
     private ISetmealService setmealService;
 
-    @Autowired
-    private ISetmealDishService setmealDishService;
-
     @Operation(summary = "新增套餐", description = "添加新套餐")
     @PostMapping
     public Result<String> save(@RequestBody Setmeal setmeal, HttpServletRequest request) {
         Long empId = (Long) request.getSession().getAttribute("employee");
-        setmeal.setCreateUser(empId);
-        setmeal.setUpdateUser(empId);
-        setmealService.save(setmeal);
+        setmealService.saveSetmeal(setmeal, empId);
         return Result.success("新增套餐成功");
     }
 
@@ -41,57 +33,43 @@ public class SetmealController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize,
             @RequestParam(required = false) String name) {
-        Page<Setmeal> pageInfo = new Page<>(page, pageSize);
-        LambdaQueryWrapper<Setmeal> wrapper = new LambdaQueryWrapper<>();
-        if (name != null && !name.isEmpty()) {
-            wrapper.like(Setmeal::getName, name);
-        }
-        wrapper.orderByDesc(Setmeal::getUpdateTime);
-        setmealService.page(pageInfo, wrapper);
+        Page<Setmeal> pageInfo = setmealService.pageQuery(page, pageSize, name);
         return Result.success(pageInfo);
     }
 
     @Operation(summary = "根据条件查询套餐", description = "条件查询套餐列表")
     @GetMapping("/list")
-    public Result<List<Setmeal>> list(Long categoryId, Integer status) {
-        LambdaQueryWrapper<Setmeal> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(categoryId != null, Setmeal::getCategoryId, categoryId);
-        wrapper.eq(status != null, Setmeal::getStatus, status);
-        wrapper.orderByDesc(Setmeal::getUpdateTime);
-        List<Setmeal> list = setmealService.list(wrapper);
+    public Result<List<Setmeal>> list(@RequestParam(required = false) Long categoryId,
+                                      @RequestParam(required = false) Integer status) {
+        List<Setmeal> list = setmealService.listByConditions(categoryId, status);
         return Result.success(list);
     }
 
     @Operation(summary = "修改套餐", description = "修改套餐信息")
     @PutMapping
     public Result<String> update(@RequestBody Setmeal setmeal) {
-        setmealService.updateById(setmeal);
+        setmealService.updateSetmeal(setmeal);
         return Result.success("修改套餐成功");
     }
 
     @Operation(summary = "删除套餐", description = "根据ID删除套餐")
     @DeleteMapping
     public Result<String> delete(@RequestParam List<Long> ids) {
-        setmealService.removeByIds(ids);
+        setmealService.deleteByIds(ids);
         return Result.success("删除套餐成功");
     }
 
     @Operation(summary = "修改套餐状态", description = "启售或停售套餐")
     @PutMapping("/status")
     public Result<String> updateStatus(@RequestParam List<Long> ids, @RequestParam Integer status) {
-        for (Long id : ids) {
-            Setmeal setmeal = new Setmeal();
-            setmeal.setId(id);
-            setmeal.setStatus(status);
-            setmealService.updateById(setmeal);
-        }
+        setmealService.updateStatus(ids, status);
         return Result.success("状态修改成功");
     }
 
     @Operation(summary = "根据ID查询套餐", description = "获取套餐详细信息")
     @GetMapping("/{id}")
     public Result<Setmeal> getById(@PathVariable Long id) {
-        Setmeal setmeal = setmealService.getById(id);
+        Setmeal setmeal = setmealService.getSetmealById(id);
         return Result.success(setmeal);
     }
 }

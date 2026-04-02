@@ -6,4 +6,6 @@ import org.example.test1.entity.User;
 public interface IUserService extends IService<User> {
 
     User wxLogin(String phone);
+
+    User getLoginUser(Long userId);
 }

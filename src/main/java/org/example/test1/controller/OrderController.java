@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.example.test1.common.Result;
 import org.example.test1.entity.Orders;
@@ -24,13 +23,9 @@ public class OrderController {
     @Operation(summary = "用户下单", description = "提交订单")
     @PostMapping("/submit")
     public Result<String> submit(@RequestBody Orders orders, HttpServletRequest request) {
-        try {
-            ordersService.submit(orders);
-            return Result.success("下单成功");
-        } catch (Exception e) {
-            log.error("下单失败", e);
-            return Result.error("下单失败");
-        }
+        Long userId = (Long) request.getSession().getAttribute("userId");
+        ordersService.submit(orders, userId);
+        return Result.success("下单成功");
     }
 
     @Operation(summary = "分页查询订单", description = "查询用户订单列表")
@@ -47,13 +42,14 @@ public class OrderController {
     @Operation(summary = "查询订单详情", description = "根据ID查询订单详细信息")
     @GetMapping("/detail/{id}")
     public Result<Orders> detail(@PathVariable Long id) {
-        Orders orders = ordersService.getById(id);
+        Orders orders = ordersService.getOrderDetail(id);
         return Result.success(orders);
     }
 
     @Operation(summary = "催单", description = "提醒商家尽快处理")
     @GetMapping("/reminder/{id}")
     public Result<String> reminder(@PathVariable Long id) {
+        ordersService.reminder(id);
         return Result.success("已催单");
     }
 
@@ -64,22 +60,14 @@ public class OrderController {
             @RequestParam(defaultValue = "10") Integer pageSize,
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) Integer status) {
-        Page<Orders> pageInfo = new Page<>(page, pageSize);
-        LambdaQueryWrapper<Orders> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(userId != null, Orders::getUserId, userId);
-        wrapper.eq(status != null, Orders::getStatus, status);
-        wrapper.orderByDesc(Orders::getOrderTime);
-        ordersService.page(pageInfo, wrapper);
+        Page<Orders> pageInfo = ordersService.adminPageQuery(page, pageSize, userId, status);
         return Result.success(pageInfo);
     }
 
     @Operation(summary = "修改订单状态", description = "更新订单状态")
     @PutMapping
     public Result<String> updateStatus(@RequestParam Long id, @RequestParam Integer status) {
-        Orders orders = new Orders();
-        orders.setId(id);
-        orders.setStatus(status);
-        ordersService.updateById(orders);
+        ordersService.updateStatus(id, status);
         return Result.success("订单状态修改成功");
     }
 }

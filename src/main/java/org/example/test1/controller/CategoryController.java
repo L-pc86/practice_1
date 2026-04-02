@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.example.test1.common.Result;
 import org.example.test1.entity.Category;
@@ -24,9 +23,7 @@ public class CategoryController {
     @PostMapping
     public Result<String> save(@RequestBody Category category, HttpServletRequest request) {
         Long empId = (Long) request.getSession().getAttribute("employee");
-        category.setCreateUser(empId);
-        category.setUpdateUser(empId);
-        categoryService.save(category);
+        categoryService.saveCategory(category, empId);
         return Result.success("新增分类成功");
     }
 
@@ -35,46 +32,35 @@ public class CategoryController {
     public Result<Page<Category>> page(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize) {
-        Page<Category> pageInfo = new Page<>(page, pageSize);
-        LambdaQueryWrapper<Category> wrapper = new LambdaQueryWrapper<>();
-        wrapper.orderByDesc(Category::getSort);
-        categoryService.page(pageInfo, wrapper);
+        Page<Category> pageInfo = categoryService.pageQuery(page, pageSize);
         return Result.success(pageInfo);
     }
 
     @Operation(summary = "根据类型查询分类", description = "查询指定类型的分类列表")
     @GetMapping("/list")
     public Result<List<Category>> list(@RequestParam(required = false) Integer type) {
-        LambdaQueryWrapper<Category> wrapper = new LambdaQueryWrapper<>();
-        if (type != null) {
-            wrapper.eq(Category::getType, type);
-        }
-        wrapper.orderByAsc(Category::getSort);
-        List<Category> list = categoryService.list(wrapper);
+        List<Category> list = categoryService.listByType(type);
         return Result.success(list);
     }
 
     @Operation(summary = "修改分类", description = "修改分类信息")
     @PutMapping
     public Result<String> update(@RequestBody Category category) {
-        categoryService.updateById(category);
+        categoryService.updateCategory(category);
         return Result.success("修改分类成功");
     }
 
     @Operation(summary = "删除分类", description = "根据ID删除分类")
     @DeleteMapping
     public Result<String> delete(@RequestParam Long id) {
-        categoryService.removeById(id);
+        categoryService.deleteById(id);
         return Result.success("删除分类成功");
     }
 
     @Operation(summary = "修改分类状态", description = "启用或禁用分类")
     @PutMapping("/status")
     public Result<String> updateStatus(@RequestParam Long id, @RequestParam Integer status) {
-        Category category = new Category();
-        category.setId(id);
-        category.setStatus(status);
-        categoryService.updateById(category);
+        categoryService.updateStatus(id, status);
         return Result.success("状态修改成功");
     }
 }

@@ -31,10 +31,7 @@ public class CUserController {
     @GetMapping("/getLoginUser")
     public Result<User> getLoginUser(HttpServletRequest request) {
         Long userId = (Long) request.getSession().getAttribute("userId");
-        if (userId == null) {
-            return Result.error("用户未登录");
-        }
-        User user = userService.getById(userId);
+        User user = userService.getLoginUser(userId);
         return Result.success(user);
     }
 }

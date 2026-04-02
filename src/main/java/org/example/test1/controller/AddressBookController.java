@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.example.test1.common.Result;
 import org.example.test1.entity.AddressBook;
 import org.example.test1.service.IAddressBookService;
@@ -23,16 +22,7 @@ public class AddressBookController {
     @PostMapping
     public Result<String> save(@RequestBody AddressBook addressBook, HttpServletRequest request) {
         Long userId = (Long) request.getSession().getAttribute("userId");
-        addressBook.setUserId(userId);
-
-        LambdaQueryWrapper<AddressBook> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(AddressBook::getUserId, userId);
-        Long count = addressBookService.count(wrapper);
-
-        if (count == 0) {
-            addressBook.setIsDefault(1);
-        }
-        addressBookService.save(addressBook);
+        addressBookService.saveAddress(addressBook, userId);
         return Result.success("新增地址成功");
     }
 
@@ -40,11 +30,7 @@ public class AddressBookController {
     @GetMapping("/list")
     public Result<List<AddressBook>> list(HttpServletRequest request) {
         Long userId = (Long) request.getSession().getAttribute("userId");
-        LambdaQueryWrapper<AddressBook> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(AddressBook::getUserId, userId);
-        wrapper.orderByDesc(AddressBook::getIsDefault);
-        wrapper.orderByDesc(AddressBook::getUpdateTime);
-        List<AddressBook> list = addressBookService.list(wrapper);
+        List<AddressBook> list = addressBookService.listByUserId(userId);
         return Result.success(list);
     }
 
@@ -58,14 +44,14 @@ public class AddressBookController {
     @Operation(summary = "修改地址", description = "更新收货地址信息")
     @PutMapping
     public Result<String> update(@RequestBody AddressBook addressBook) {
-        addressBookService.updateById(addressBook);
+        addressBookService.updateAddress(addressBook);
         return Result.success("修改地址成功");
     }
 
     @Operation(summary = "删除地址", description = "根据ID删除收货地址")
     @DeleteMapping
     public Result<String> delete(@RequestParam Long id) {
-        addressBookService.removeById(id);
+        addressBookService.deleteById(id);
         return Result.success("删除地址成功");
     }
 
@@ -73,19 +59,7 @@ public class AddressBookController {
     @PutMapping("/default")
     public Result<String> setDefault(@RequestParam Long id, HttpServletRequest request) {
         Long userId = (Long) request.getSession().getAttribute("userId");
-
-        LambdaQueryWrapper<AddressBook> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(AddressBook::getUserId, userId);
-        List<AddressBook> list = addressBookService.list(wrapper);
-        for (AddressBook ab : list) {
-            ab.setIsDefault(0);
-            addressBookService.updateById(ab);
-        }
-
-        AddressBook addressBook = new AddressBook();
-        addressBook.setId(id);
-        addressBook.setIsDefault(1);
-        addressBookService.updateById(addressBook);
+        addressBookService.setDefault(id, userId);
         return Result.success("设置默认地址成功");
     }
 
@@ -93,10 +67,7 @@ public class AddressBookController {
     @GetMapping("/default")
     public Result<AddressBook> getDefault(HttpServletRequest request) {
         Long userId = (Long) request.getSession().getAttribute("userId");
-        LambdaQueryWrapper<AddressBook> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(AddressBook::getUserId, userId);
-        wrapper.eq(AddressBook::getIsDefault, 1);
-        AddressBook addressBook = addressBookService.getOne(wrapper);
+        AddressBook addressBook = addressBookService.getDefault(userId);
         return Result.success(addressBook);
     }
 }

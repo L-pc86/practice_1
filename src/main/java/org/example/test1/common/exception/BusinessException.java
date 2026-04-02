@@ -1,23 +1,23 @@
 package org.example.test1.common.exception;
 
+import lombok.Getter;
 import org.example.test1.common.ResultCodeEnum;
 
+@Getter
 public class BusinessException extends RuntimeException {
 
     private final Integer code;
-    private final String msg;
+    private final String message;
 
-    public BusinessException(ResultCodeEnum resultCodeEnum) {
-        super(resultCodeEnum.getMsg());
-        this.code = resultCodeEnum.getCode();
-        this.msg = resultCodeEnum.getMsg();
+    public BusinessException(ResultCodeEnum codeEnum, String message) {
+        super(message);
+        this.code = codeEnum.getCode();
+        this.message = message;
     }
 
-    public Integer getCode() {
-        return code;
-    }
-
-    public String getMsg() {
-        return msg;
+    public BusinessException(Integer code, String message) {
+        super(message);
+        this.code = code;
+        this.message = message;
     }
 }
