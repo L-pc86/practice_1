@@ -5,22 +5,19 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("user")
-public class User {
+@TableName("setmeal_dish")
+public class SetmealDish {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    private String phone;
+    private Long setmealId;
 
-    private String openid;
+    private Long dishId;
 
     private String name;
 
-    private String sex;
+    private Double price;
 
-    private String avatar;
-
-    @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
+    private Integer copies;
 }
