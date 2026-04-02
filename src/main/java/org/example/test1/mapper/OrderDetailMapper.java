@@ -2,8 +2,8 @@ package org.example.test1.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
-import org.example.test1.entity.User;
+import org.example.test1.entity.OrderDetail;
 
 @Mapper
-public interface UserMapper extends BaseMapper<User> {
+public interface OrderDetailMapper extends BaseMapper<OrderDetail> {
 }
