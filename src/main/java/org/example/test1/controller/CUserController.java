@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/user")
 @Tag(name = "用户管理", description = "顾客用户相关接口")
-public class UserController {
+public class CUserController {
 
     @Autowired
     private IUserService userService;

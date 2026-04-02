@@ -22,6 +22,8 @@ public class Dish {
 
     private String description;
 
+    private Integer sort;
+
     private Integer status;
 
     @TableField(fill = FieldFill.INSERT)
