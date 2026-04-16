@@ -34,8 +34,8 @@ public class AddressBookService extends ServiceImpl<AddressBookMapper, AddressBo
     }
 
     @Override
-    public AddressBook getById(Long id) {
-        return getById(id);
+    public AddressBook getAddressById(Long id) {
+        return super.getById(id);
     }
 
     @Override

@@ -7,9 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.example.test1.common.Result;
+import org.example.test1.common.utils.JwtUtil;
 import org.example.test1.entity.Employee;
 import org.example.test1.service.IEmployeeService;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -20,24 +23,31 @@ public class EmployeeController {
     @Autowired
     private IEmployeeService employeeService;
 
-    @Operation(summary = "员工登录", description = "员工账号登录")
+    @Operation(summary = "员工登录", description = "员工账号登录，返回JWT Token")
     @PostMapping("/login")
-    public Result<Employee> login(@RequestBody Employee loginForm) {
+    public Result<Map<String, Object>> login(@RequestBody Employee loginForm) {
         Employee employee = employeeService.login(loginForm.getUsername(), loginForm.getPassword());
-        return Result.success(employee);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("empId", employee.getId());
+        String token = JwtUtil.createToken(claims);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("token", token);
+        data.put("employee", employee);
+        return Result.success(data);
     }
 
     @Operation(summary = "员工登出", description = "退出当前登录")
     @PostMapping("/logout")
-    public Result<String> logout(HttpServletRequest request) {
-        request.getSession().removeAttribute("employee");
+    public Result<String> logout() {
         return Result.success("退出成功");
     }
 
     @Operation(summary = "新增员工", description = "创建新员工账号")
     @PostMapping
     public Result<String> save(@RequestBody Employee employee, HttpServletRequest request) {
-        Long empId = (Long) request.getSession().getAttribute("employee");
+        String token = request.getHeader("token");
+        Long empId = JwtUtil.getEmployeeId(token);
         employeeService.saveEmployee(employee, empId);
         return Result.success("新增员工成功，默认密码123456");
     }

@@ -18,8 +18,8 @@ public class OrgService extends ServiceImpl<OrgMapper, Org> implements IOrgServi
     }
 
     @Override
-    public Org getById(Integer id) {
-        Org org = getById(id);
+    public Org getOrgById(Integer id) {
+        Org org = super.getById(id);
         if (org == null) {
             throw new BusinessException(ResultCodeEnum.ERROR, "组织不存在");
         }

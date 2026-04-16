@@ -17,4 +17,16 @@ public interface IOrdersService extends IService<Orders> {
     Orders getOrderDetail(Long id);
 
     void reminder(Long id);
+
+    void cancel(Long id, Long userId);
+
+    void confirm(Long id);
+
+    void delivery(Long id);
+
+    void complete(Long id);
+
+    void rejection(Long id);
+
+    void repetition(Long id, Long userId);
 }

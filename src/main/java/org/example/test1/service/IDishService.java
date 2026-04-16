@@ -18,4 +18,10 @@ public interface IDishService extends IService<Dish> {
     void updateStatus(List<Long> ids, Integer status);
 
     List<Dish> listByCategoryId(Long categoryId, Integer status);
+
+    void saveDishWithFlavor(Dish dish, List<org.example.test1.entity.DishFlavor> flavors, Long empId);
+
+    void updateDishWithFlavor(Dish dish, List<org.example.test1.entity.DishFlavor> flavors);
+
+    void deleteWithFlavor(List<Long> ids);
 }

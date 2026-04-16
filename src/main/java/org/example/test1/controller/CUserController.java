@@ -6,9 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.example.test1.common.Result;
+import org.example.test1.common.utils.JwtUtil;
 import org.example.test1.entity.User;
 import org.example.test1.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -19,18 +22,25 @@ public class CUserController {
     @Autowired
     private IUserService userService;
 
-    @Operation(summary = "微信登录", description = "用户微信登录获取用户信息")
+    @Operation(summary = "微信登录", description = "用户微信登录获取用户信息，返回JWT Token")
     @PostMapping("/login")
-    public Result<User> login(@RequestBody User loginUser, HttpServletRequest request) {
+    public Result<Map<String, Object>> login(@RequestBody User loginUser) {
         User user = userService.wxLogin(loginUser.getPhone());
-        request.getSession().setAttribute("userId", user.getId());
-        return Result.success(user);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId());
+        String token = JwtUtil.createToken(claims);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("token", token);
+        data.put("user", user);
+        return Result.success(data);
     }
 
     @Operation(summary = "获取登录用户信息", description = "获取当前登录用户信息")
     @GetMapping("/getLoginUser")
     public Result<User> getLoginUser(HttpServletRequest request) {
-        Long userId = (Long) request.getSession().getAttribute("userId");
+        String token = request.getHeader("token");
+        Long userId = JwtUtil.getUserId(token);
         User user = userService.getLoginUser(userId);
         return Result.success(user);
     }

@@ -8,7 +8,7 @@ public interface IOrgService extends IService<Org> {
 
     List<Org> listAll();
 
-    Org getById(Integer id);
+    Org getOrgById(Integer id);
 
     boolean create(Org org);
 

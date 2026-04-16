@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.example.test1.common.Result;
+import org.example.test1.common.utils.JwtUtil;
 import org.example.test1.entity.Orders;
 import org.example.test1.service.IOrdersService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +24,8 @@ public class OrderController {
     @Operation(summary = "用户下单", description = "提交订单")
     @PostMapping("/submit")
     public Result<String> submit(@RequestBody Orders orders, HttpServletRequest request) {
-        Long userId = (Long) request.getSession().getAttribute("userId");
+        String token = request.getHeader("token");
+        Long userId = JwtUtil.getUserId(token);
         ordersService.submit(orders, userId);
         return Result.success("下单成功");
     }
@@ -34,7 +36,8 @@ public class OrderController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize,
             HttpServletRequest request) {
-        Long userId = (Long) request.getSession().getAttribute("userId");
+        String token = request.getHeader("token");
+        Long userId = JwtUtil.getUserId(token);
         Page<Orders> pageInfo = ordersService.pageQuery(userId, page, pageSize);
         return Result.success(pageInfo);
     }
@@ -53,6 +56,24 @@ public class OrderController {
         return Result.success("已催单");
     }
 
+    @Operation(summary = "取消订单", description = "用户取消订单")
+    @PutMapping("/cancel/{id}")
+    public Result<String> cancel(@PathVariable Long id, HttpServletRequest request) {
+        String token = request.getHeader("token");
+        Long userId = JwtUtil.getUserId(token);
+        ordersService.cancel(id, userId);
+        return Result.success("取消订单成功");
+    }
+
+    @Operation(summary = "再来一单", description = "根据历史订单重新下单")
+    @PostMapping("/repetition/{id}")
+    public Result<String> repetition(@PathVariable Long id, HttpServletRequest request) {
+        String token = request.getHeader("token");
+        Long userId = JwtUtil.getUserId(token);
+        ordersService.repetition(id, userId);
+        return Result.success("再来一单成功");
+    }
+
     @Operation(summary = "分页查询订单（管理端）", description = "分页条件查询订单列表")
     @GetMapping("/page")
     public Result<Page<Orders>> page(
@@ -64,10 +85,31 @@ public class OrderController {
         return Result.success(pageInfo);
     }
 
-    @Operation(summary = "修改订单状态", description = "更新订单状态")
-    @PutMapping
-    public Result<String> updateStatus(@RequestParam Long id, @RequestParam Integer status) {
-        ordersService.updateStatus(id, status);
-        return Result.success("订单状态修改成功");
+    @Operation(summary = "接单", description = "商家确认接单")
+    @PutMapping("/confirm/{id}")
+    public Result<String> confirm(@PathVariable Long id) {
+        ordersService.confirm(id);
+        return Result.success("接单成功");
+    }
+
+    @Operation(summary = "拒单", description = "商家拒绝订单")
+    @PutMapping("/rejection/{id}")
+    public Result<String> rejection(@PathVariable Long id) {
+        ordersService.rejection(id);
+        return Result.success("拒单成功");
+    }
+
+    @Operation(summary = "派送", description = "商家派送订单")
+    @PutMapping("/delivery/{id}")
+    public Result<String> delivery(@PathVariable Long id) {
+        ordersService.delivery(id);
+        return Result.success("派送成功");
+    }
+
+    @Operation(summary = "完成订单", description = "完成订单")
+    @PutMapping("/complete/{id}")
+    public Result<String> complete(@PathVariable Long id) {
+        ordersService.complete(id);
+        return Result.success("订单已完成");
     }
 }

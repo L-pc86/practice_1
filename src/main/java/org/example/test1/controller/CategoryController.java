@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.example.test1.common.Result;
+import org.example.test1.common.utils.JwtUtil;
 import org.example.test1.entity.Category;
 import org.example.test1.service.ICategoryService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +23,8 @@ public class CategoryController {
     @Operation(summary = "新增分类", description = "新增菜品或套餐分类")
     @PostMapping
     public Result<String> save(@RequestBody Category category, HttpServletRequest request) {
-        Long empId = (Long) request.getSession().getAttribute("employee");
+        String token = request.getHeader("token");
+        Long empId = JwtUtil.getEmployeeId(token);
         categoryService.saveCategory(category, empId);
         return Result.success("新增分类成功");
     }

@@ -10,7 +10,7 @@ public interface IAddressBookService extends IService<AddressBook> {
 
     List<AddressBook> listByUserId(Long userId);
 
-    AddressBook getById(Long id);
+    AddressBook getAddressById(Long id);
 
     void updateAddress(AddressBook addressBook);
 

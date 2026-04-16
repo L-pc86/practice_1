@@ -35,7 +35,7 @@ public class OrgController {
     @Operation(summary = "根据ID查询组织", description = "获取单个组织信息")
     @GetMapping("/{id}")
     public Result<Org> getById(@PathVariable Integer id) {
-        Org org = orgService.getById(id);
+        Org org = orgService.getOrgById(id);
         return Result.success(org);
     }
 

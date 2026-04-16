@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @TableName("setmeal")
@@ -35,4 +36,10 @@ public class Setmeal {
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateUser;
+
+    @TableField(exist = false)
+    private List<SetmealDish> setmealDishes;
+
+    @TableField(exist = false)
+    private String categoryName;
 }

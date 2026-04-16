@@ -20,4 +20,10 @@ public interface ISetmealService extends IService<Setmeal> {
     void updateStatus(List<Long> ids, Integer status);
 
     Setmeal getSetmealById(Long id);
+
+    void saveSetmealWithDish(Setmeal setmeal, List<org.example.test1.entity.SetmealDish> setmealDishes, Long empId);
+
+    void updateSetmealWithDish(Setmeal setmeal, List<org.example.test1.entity.SetmealDish> setmealDishes);
+
+    void deleteWithDish(List<Long> ids);
 }

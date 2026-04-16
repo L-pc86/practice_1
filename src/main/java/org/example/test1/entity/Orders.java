@@ -34,6 +34,8 @@ public class Orders {
 
     private String address;
 
+    private String consignee;
+
     private Integer status;
 
     @TableField(fill = FieldFill.INSERT)

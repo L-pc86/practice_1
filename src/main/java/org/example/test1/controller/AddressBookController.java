@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.example.test1.common.Result;
+import org.example.test1.common.utils.JwtUtil;
 import org.example.test1.entity.AddressBook;
 import org.example.test1.service.IAddressBookService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +22,8 @@ public class AddressBookController {
     @Operation(summary = "新增地址", description = "添加新的收货地址")
     @PostMapping
     public Result<String> save(@RequestBody AddressBook addressBook, HttpServletRequest request) {
-        Long userId = (Long) request.getSession().getAttribute("userId");
+        String token = request.getHeader("token");
+        Long userId = JwtUtil.getUserId(token);
         addressBookService.saveAddress(addressBook, userId);
         return Result.success("新增地址成功");
     }
@@ -29,7 +31,8 @@ public class AddressBookController {
     @Operation(summary = "查询当前用户所有地址", description = "获取当前登录用户的所有收货地址")
     @GetMapping("/list")
     public Result<List<AddressBook>> list(HttpServletRequest request) {
-        Long userId = (Long) request.getSession().getAttribute("userId");
+        String token = request.getHeader("token");
+        Long userId = JwtUtil.getUserId(token);
         List<AddressBook> list = addressBookService.listByUserId(userId);
         return Result.success(list);
     }
@@ -37,7 +40,7 @@ public class AddressBookController {
     @Operation(summary = "根据ID查询地址", description = "获取指定地址的详细信息")
     @GetMapping("/{id}")
     public Result<AddressBook> getById(@PathVariable Long id) {
-        AddressBook addressBook = addressBookService.getById(id);
+        AddressBook addressBook = addressBookService.getAddressById(id);
         return Result.success(addressBook);
     }
 
@@ -58,7 +61,8 @@ public class AddressBookController {
     @Operation(summary = "设置默认地址", description = "将指定地址设为默认收货地址")
     @PutMapping("/default")
     public Result<String> setDefault(@RequestParam Long id, HttpServletRequest request) {
-        Long userId = (Long) request.getSession().getAttribute("userId");
+        String token = request.getHeader("token");
+        Long userId = JwtUtil.getUserId(token);
         addressBookService.setDefault(id, userId);
         return Result.success("设置默认地址成功");
     }
@@ -66,7 +70,8 @@ public class AddressBookController {
     @Operation(summary = "查询默认地址", description = "获取当前用户的默认收货地址")
     @GetMapping("/default")
     public Result<AddressBook> getDefault(HttpServletRequest request) {
-        Long userId = (Long) request.getSession().getAttribute("userId");
+        String token = request.getHeader("token");
+        Long userId = JwtUtil.getUserId(token);
         AddressBook addressBook = addressBookService.getDefault(userId);
         return Result.success(addressBook);
     }

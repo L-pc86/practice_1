@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @TableName("dish")
@@ -45,4 +46,10 @@ public class Dish {
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateUser;
+
+    @TableField(exist = false)
+    private List<DishFlavor> flavors;
+
+    @TableField(exist = false)
+    private String categoryName;
 }

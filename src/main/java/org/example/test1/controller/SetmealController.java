@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.example.test1.common.Result;
+import org.example.test1.common.utils.JwtUtil;
 import org.example.test1.entity.Setmeal;
+import org.example.test1.entity.SetmealDish;
 import org.example.test1.service.ISetmealService;
+import org.example.test1.service.ISetmealDishService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -19,11 +22,20 @@ public class SetmealController {
     @Autowired
     private ISetmealService setmealService;
 
+    @Autowired
+    private ISetmealDishService setmealDishService;
+
     @Operation(summary = "新增套餐", description = "添加新套餐")
     @PostMapping
     public Result<String> save(@RequestBody Setmeal setmeal, HttpServletRequest request) {
-        Long empId = (Long) request.getSession().getAttribute("employee");
-        setmealService.saveSetmeal(setmeal, empId);
+        String token = request.getHeader("token");
+        Long empId = JwtUtil.getEmployeeId(token);
+        List<SetmealDish> setmealDishes = setmeal.getSetmealDishes();
+        if (setmealDishes != null && !setmealDishes.isEmpty()) {
+            setmealService.saveSetmealWithDish(setmeal, setmealDishes, empId);
+        } else {
+            setmealService.saveSetmeal(setmeal, empId);
+        }
         return Result.success("新增套餐成功");
     }
 
@@ -37,25 +49,34 @@ public class SetmealController {
         return Result.success(pageInfo);
     }
 
-    @Operation(summary = "根据条件查询套餐", description = "条件查询套餐列表")
+    @Operation(summary = "根据条件查询套餐", description = "条件查询套餐列表（含菜品）")
     @GetMapping("/list")
     public Result<List<Setmeal>> list(@RequestParam(required = false) Long categoryId,
                                       @RequestParam(required = false) Integer status) {
         List<Setmeal> list = setmealService.listByConditions(categoryId, status);
+        for (Setmeal setmeal : list) {
+            List<SetmealDish> dishes = setmealDishService.listBySetmealId(setmeal.getId());
+            setmeal.setSetmealDishes(dishes);
+        }
         return Result.success(list);
     }
 
-    @Operation(summary = "修改套餐", description = "修改套餐信息")
+    @Operation(summary = "修改套餐", description = "修改套餐信息（含菜品）")
     @PutMapping
     public Result<String> update(@RequestBody Setmeal setmeal) {
-        setmealService.updateSetmeal(setmeal);
+        List<SetmealDish> setmealDishes = setmeal.getSetmealDishes();
+        if (setmealDishes != null && !setmealDishes.isEmpty()) {
+            setmealService.updateSetmealWithDish(setmeal, setmealDishes);
+        } else {
+            setmealService.updateSetmeal(setmeal);
+        }
         return Result.success("修改套餐成功");
     }
 
-    @Operation(summary = "删除套餐", description = "根据ID删除套餐")
+    @Operation(summary = "删除套餐", description = "根据ID删除套餐（含关联菜品）")
     @DeleteMapping
     public Result<String> delete(@RequestParam List<Long> ids) {
-        setmealService.deleteByIds(ids);
+        setmealService.deleteWithDish(ids);
         return Result.success("删除套餐成功");
     }
 
@@ -66,10 +87,14 @@ public class SetmealController {
         return Result.success("状态修改成功");
     }
 
-    @Operation(summary = "根据ID查询套餐", description = "获取套餐详细信息")
+    @Operation(summary = "根据ID查询套餐", description = "获取套餐详细信息（含菜品）")
     @GetMapping("/{id}")
     public Result<Setmeal> getById(@PathVariable Long id) {
         Setmeal setmeal = setmealService.getSetmealById(id);
+        if (setmeal != null) {
+            List<SetmealDish> dishes = setmealDishService.listBySetmealId(id);
+            setmeal.setSetmealDishes(dishes);
+        }
         return Result.success(setmeal);
     }
 }
