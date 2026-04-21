@@ -36,6 +36,13 @@ public class DishController {
         return Result.success("新增菜品成功");
     }
 
+    @GetMapping("/Alllist")
+    public Result<List<Dish>> getAlllist(){
+        List<Dish> list = dishService.list();
+        return Result.success(list);
+    }
+    
+
     @Operation(summary = "新增菜品含口味", description = "添加新菜品同时添加口味数据")
     @PostMapping("/withFlavor")
     public Result<String> saveWithFlavor(@RequestBody Dish dish, HttpServletRequest request) {
