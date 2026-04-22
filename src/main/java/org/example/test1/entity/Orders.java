@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @TableName("orders")
@@ -40,4 +41,11 @@ public class Orders {
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
+
+    /**
+     * 订单明细列表（非持久化字段）
+     */
+    @TableField(exist = false)
+    private List<OrderDetail> orderDetails;
 }
+

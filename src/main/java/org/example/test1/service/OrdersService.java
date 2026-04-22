@@ -108,7 +108,12 @@ public class OrdersService extends ServiceImpl<OrdersMapper, Orders> implements 
 
     @Override
     public Orders getOrderDetail(Long id) {
-        return getById(id);
+        Orders orders = getById(id);
+        if (orders != null) {
+            List<OrderDetail> details = orderDetailService.listByOrderId(id);
+            orders.setOrderDetails(details);
+        }
+        return orders;
     }
 
     @Override

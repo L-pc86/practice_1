@@ -44,4 +44,10 @@ public class CUserController {
         User user = userService.getLoginUser(userId);
         return Result.success(user);
     }
+
+    @Operation(summary = "用户登出", description = "退出当前用户登录")
+    @PostMapping("/logout")
+    public Result<String> logout() {
+        return Result.success("退出成功");
+    }
 }

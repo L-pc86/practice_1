@@ -65,4 +65,11 @@ public class CategoryController {
         categoryService.updateStatus(id, status);
         return Result.success("状态修改成功");
     }
+
+    @Operation(summary = "根据ID查询分类", description = "获取指定分类的详细信息")
+    @GetMapping("/{id}")
+    public Result<Category> getById(@PathVariable Long id) {
+        Category category = categoryService.getById(id);
+        return Result.success(category);
+    }
 }
