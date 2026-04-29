@@ -45,6 +45,15 @@ public class CUserController {
         return Result.success(user);
     }
 
+    @Operation(summary = "修改个人信息", description = "修改用户昵称、性别、头像等个人信息")
+    @PutMapping
+    public Result<String> updateUserInfo(@RequestBody User user, HttpServletRequest request) {
+        String token = request.getHeader("token");
+        Long userId = JwtUtil.getUserId(token);
+        userService.updateUserInfo(user, userId);
+        return Result.success("修改成功");
+    }
+
     @Operation(summary = "用户登出", description = "退出当前用户登录")
     @PostMapping("/logout")
     public Result<String> logout() {

@@ -32,4 +32,14 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IUserS
         }
         return user;
     }
+
+    @Override
+    public void updateUserInfo(User user, Long userId) {
+        User existUser = getById(userId);
+        if (existUser == null) {
+            throw new BusinessException(ResultCodeEnum.ERROR, "用户不存在");
+        }
+        user.setId(userId);
+        updateById(user);
+    }
 }

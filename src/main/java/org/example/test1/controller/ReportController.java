@@ -2,6 +2,7 @@ package org.example.test1.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.example.test1.common.Result;
 import org.example.test1.service.IReportService;
@@ -79,5 +80,12 @@ public class ReportController {
         log.info("查询各状态订单数量");
         Map<String, Object> data = reportService.getOrderCountByStatus();
         return Result.success(data);
+    }
+
+    @Operation(summary = "导出运营数据报表", description = "导出近30天运营数据到Excel文件")
+    @GetMapping("/export")
+    public void export(HttpServletResponse response) {
+        log.info("导出运营数据报表");
+        reportService.exportBusinessData(response);
     }
 }

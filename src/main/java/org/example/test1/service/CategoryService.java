@@ -6,12 +6,23 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.example.test1.common.exception.BusinessException;
 import org.example.test1.common.ResultCodeEnum;
 import org.example.test1.entity.Category;
+import org.example.test1.entity.Dish;
+import org.example.test1.entity.Setmeal;
 import org.example.test1.mapper.CategoryMapper;
+import org.example.test1.mapper.DishMapper;
+import org.example.test1.mapper.SetmealMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
 public class CategoryService extends ServiceImpl<CategoryMapper, Category> implements ICategoryService {
+
+    @Autowired
+    private DishMapper dishMapper;
+
+    @Autowired
+    private SetmealMapper setmealMapper;
 
     @Override
     public void saveCategory(Category category, Long empId) {
@@ -46,6 +57,20 @@ public class CategoryService extends ServiceImpl<CategoryMapper, Category> imple
 
     @Override
     public void deleteById(Long id) {
+        LambdaQueryWrapper<Dish> dishWrapper = new LambdaQueryWrapper<>();
+        dishWrapper.eq(Dish::getCategoryId, id);
+        long dishCount = dishMapper.selectCount(dishWrapper);
+        if (dishCount > 0) {
+            throw new BusinessException(ResultCodeEnum.ERROR, "当前分类下存在菜品，无法删除");
+        }
+
+        LambdaQueryWrapper<Setmeal> setmealWrapper = new LambdaQueryWrapper<>();
+        setmealWrapper.eq(Setmeal::getCategoryId, id);
+        long setmealCount = setmealMapper.selectCount(setmealWrapper);
+        if (setmealCount > 0) {
+            throw new BusinessException(ResultCodeEnum.ERROR, "当前分类下存在套餐，无法删除");
+        }
+
         removeById(id);
     }
 

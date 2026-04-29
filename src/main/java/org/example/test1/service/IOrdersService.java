@@ -3,6 +3,7 @@ package org.example.test1.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.example.test1.entity.Orders;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import java.time.LocalDateTime;
 
 public interface IOrdersService extends IService<Orders> {
 
@@ -10,7 +11,8 @@ public interface IOrdersService extends IService<Orders> {
 
     Page<Orders> pageQuery(Long userId, Integer page, Integer pageSize);
 
-    Page<Orders> adminPageQuery(Integer page, Integer pageSize, Long userId, Integer status);
+    Page<Orders> adminPageQuery(Integer page, Integer pageSize, Long userId, Integer status,
+                                String orderNumber, LocalDateTime beginTime, LocalDateTime endTime);
 
     void updateStatus(Long id, Integer status);
 

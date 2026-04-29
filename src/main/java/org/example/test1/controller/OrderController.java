@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.example.test1.common.Result;
@@ -11,6 +12,7 @@ import org.example.test1.common.utils.JwtUtil;
 import org.example.test1.entity.Orders;
 import org.example.test1.service.IOrdersService;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 
 @Slf4j
 @RestController
@@ -42,14 +44,14 @@ public class OrderController {
         return Result.success(pageInfo);
     }
 
-    @Operation(summary = "查询订单详情", description = "根据ID查询订单详细信息")
+    @Operation(summary = "查询订单详情", description = "根据ID查询订单详细信息（含明细）")
     @GetMapping("/detail/{id}")
     public Result<Orders> detail(@PathVariable Long id) {
         Orders orders = ordersService.getOrderDetail(id);
         return Result.success(orders);
     }
 
-    @Operation(summary = "催单", description = "提醒商家尽快处理")
+    @Operation(summary = "催单", description = "提醒商家尽快处理，通过WebSocket推送通知")
     @GetMapping("/reminder/{id}")
     public Result<String> reminder(@PathVariable Long id) {
         ordersService.reminder(id);
@@ -74,14 +76,18 @@ public class OrderController {
         return Result.success("再来一单成功");
     }
 
-    @Operation(summary = "分页查询订单（管理端）", description = "分页条件查询订单列表")
+    @Operation(summary = "分页查询订单（管理端）", description = "分页条件查询订单列表，支持按订单号和日期范围搜索")
     @GetMapping("/page")
     public Result<Page<Orders>> page(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize,
             @RequestParam(required = false) Long userId,
-            @RequestParam(required = false) Integer status) {
-        Page<Orders> pageInfo = ordersService.adminPageQuery(page, pageSize, userId, status);
+            @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) String orderNumber,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime beginTime,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
+        Page<Orders> pageInfo = ordersService.adminPageQuery(page, pageSize, userId, status,
+                orderNumber, beginTime, endTime);
         return Result.success(pageInfo);
     }
 

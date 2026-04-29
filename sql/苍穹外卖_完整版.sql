@@ -154,6 +154,16 @@ CREATE TABLE IF NOT EXISTS shopping_cart (
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
 ) COMMENT '购物车表';
 
+-- 12. 店铺状态表
+CREATE TABLE IF NOT EXISTS shop (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
+    status INT DEFAULT 0 COMMENT '营业状态（0:打烊 1:营业中）',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) COMMENT '店铺状态表';
+
+-- 初始化店铺状态
+INSERT INTO shop (id, status) VALUES (1, 1);
+
 -- 初始化数据
 -- 插入管理员账号 (密码: 123456, MD5加密)
 INSERT INTO employee (name, username, password, phone, sex, id_number, status) VALUES

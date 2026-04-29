@@ -8,4 +8,6 @@ public interface IUserService extends IService<User> {
     User wxLogin(String phone);
 
     User getLoginUser(Long userId);
+
+    void updateUserInfo(User user, Long userId);
 }

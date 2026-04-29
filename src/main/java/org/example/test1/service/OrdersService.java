@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.example.test1.common.exception.BusinessException;
 import org.example.test1.common.ResultCodeEnum;
+import org.example.test1.common.websocket.WebSocketServer;
 import org.example.test1.entity.*;
 import org.example.test1.mapper.OrdersMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -73,6 +76,12 @@ public class OrdersService extends ServiceImpl<OrdersMapper, Orders> implements 
         orderDetailService.saveBatch(orderDetails);
 
         shoppingCartService.cleanCart(userId);
+
+        Map<String, Object> msg = new HashMap<>();
+        msg.put("type", 1);
+        msg.put("orderId", orders.getId());
+        msg.put("content", "订单号：" + orders.getOrderNumber());
+        WebSocketServer.sendMessageToAll(toJsonStr(msg));
     }
 
     @Override
@@ -86,11 +95,15 @@ public class OrdersService extends ServiceImpl<OrdersMapper, Orders> implements 
     }
 
     @Override
-    public Page<Orders> adminPageQuery(Integer page, Integer pageSize, Long userId, Integer status) {
+    public Page<Orders> adminPageQuery(Integer page, Integer pageSize, Long userId, Integer status,
+                                       String orderNumber, LocalDateTime beginTime, LocalDateTime endTime) {
         Page<Orders> pageInfo = new Page<>(page, pageSize);
         LambdaQueryWrapper<Orders> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(userId != null, Orders::getUserId, userId);
         wrapper.eq(status != null, Orders::getStatus, status);
+        wrapper.like(orderNumber != null && !orderNumber.isEmpty(), Orders::getOrderNumber, orderNumber);
+        wrapper.ge(beginTime != null, Orders::getOrderTime, beginTime);
+        wrapper.le(endTime != null, Orders::getOrderTime, endTime);
         wrapper.orderByDesc(Orders::getOrderTime);
         page(pageInfo, wrapper);
         return pageInfo;
@@ -122,6 +135,12 @@ public class OrdersService extends ServiceImpl<OrdersMapper, Orders> implements 
         if (orders == null) {
             throw new BusinessException(ResultCodeEnum.ERROR, "订单不存在");
         }
+
+        Map<String, Object> msg = new HashMap<>();
+        msg.put("type", 2);
+        msg.put("orderId", id);
+        msg.put("content", "用户催单：订单号" + orders.getOrderNumber());
+        WebSocketServer.sendMessageToAll(toJsonStr(msg));
     }
 
     @Override
@@ -216,5 +235,23 @@ public class OrdersService extends ServiceImpl<OrdersMapper, Orders> implements 
             cart.setNumber(detail.getCopies());
             shoppingCartService.addToCart(cart, userId);
         }
+    }
+
+    private String toJsonStr(Map<String, Object> map) {
+        StringBuilder sb = new StringBuilder("{");
+        boolean first = true;
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (!first) sb.append(",");
+            sb.append("\"").append(entry.getKey()).append("\":");
+            Object val = entry.getValue();
+            if (val instanceof String) {
+                sb.append("\"").append(val).append("\"");
+            } else {
+                sb.append(val);
+            }
+            first = false;
+        }
+        sb.append("}");
+        return sb.toString();
     }
 }
